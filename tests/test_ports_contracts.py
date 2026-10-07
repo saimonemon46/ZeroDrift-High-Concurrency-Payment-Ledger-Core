@@ -66,7 +66,7 @@ class InMemoryIdempotencyStore(IIdempotencyStore):
         self._in_flight: set[str] = set()
         self._results: dict[str, dict[str, Any]] = {}
 
-    def try_acquire(self, key: str, ttl_seconds: int = 120) -> bool:
+    def try_acquire(self, key: str, ttl_seconds: float | int = 120) -> bool:
         if key in self._in_flight or key in self._results:
             return False
         self._in_flight.add(key)
@@ -79,7 +79,7 @@ class InMemoryIdempotencyStore(IIdempotencyStore):
         self,
         key: str,
         result: dict[str, Any],
-        ttl_seconds: int = 86400,
+        ttl_seconds: float | int = 86400,
     ) -> None:
         self._in_flight.discard(key)
         self._results[key] = result
@@ -97,7 +97,7 @@ class InMemoryCachePort(ICachePort):
     def get(self, key: str) -> Any | None:
         return self._storage.get(key)
 
-    def put(self, key: str, value: Any, ttl_seconds: int | None = None) -> None:
+    def put(self, key: str, value: Any, ttl_seconds: float | int | None = None) -> None:
         self._storage[key] = value
 
     def delete(self, key: str) -> bool:

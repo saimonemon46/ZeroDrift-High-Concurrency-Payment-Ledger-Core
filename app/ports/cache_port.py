@@ -16,7 +16,7 @@ class ICachePort(ABC):
         pass
 
     @abstractmethod
-    def put(self, key: str, value: Any, ttl_seconds: int | None = None) -> None:
+    def put(self, key: str, value: Any, ttl_seconds: float | int | None = None) -> None:
         """Stores a key-value pair with an optional Time-To-Live in seconds."""
         pass
 
