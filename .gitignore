@@ -58,3 +58,6 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+
+# Local human-friendly progress notes
+PHASES_HUMAN_EXPLAINED.md

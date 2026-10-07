@@ -2,7 +2,7 @@
 ## Enterprise-Grade Double-Entry Financial Transaction Engine
 
 > **Author:** Md. Sai Mon Hasan Emon (Backend & Systems Engineer)  
-> **Target Alignment:** Pathao (Fintech Engineering), bKash, Optimizely, Samsung SRBD  
+
 > **Tech Stack:** Python 3.12+, FastAPI, PostgreSQL, Redis, Docker, PyTest, Locust  
 > **Architecture:** Clean / Hexagonal Architecture (Ports & Adapters)  
 
