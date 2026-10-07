@@ -61,3 +61,5 @@ Thumbs.db
 
 # Local human-friendly progress notes
 PHASES_HUMAN_EXPLAINED.md
+TRANSACTION_FLOW_EXPLAINED.md
+flow.md
