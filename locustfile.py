@@ -28,7 +28,7 @@ class LedgerCoreUser(HttpUser):
         """Provisions accounts on worker start."""
         # Provision initial accounts with $10,000 each
         for acc_id in self.account_ids[:10]:
-            self.client.post(
+            with self.client.post(
                 "/api/v1/accounts",
                 json={
                     "account_id": acc_id,
@@ -36,8 +36,13 @@ class LedgerCoreUser(HttpUser):
                     "initial_balance": "10000.00",
                     "currency": "USD",
                 },
+                catch_response=True,
                 name="/api/v1/accounts (seed)",
-            )
+            ) as response:
+                if response.status_code in (201, 409):
+                    response.success()
+                else:
+                    response.failure(f"Seeding failed: {response.status_code}")
 
     @task(70)
     def transfer_money(self) -> None:

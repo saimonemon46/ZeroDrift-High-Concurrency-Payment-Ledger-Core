@@ -184,6 +184,17 @@ def create_app() -> FastAPI:
             },
         )
 
+    # Root endpoint redirecting to API documentation
+    @app.get("/", include_in_schema=False)
+    async def root_redirect() -> dict[str, str]:
+        return {
+            "name": "LedgerCore API",
+            "version": "1.0.0",
+            "status": "operational",
+            "docs_url": "/docs",
+            "health_url": "/api/v1/health",
+        }
+
     # Route Registration
     app.include_router(health.router, prefix="/api/v1")
     app.include_router(accounts.router, prefix="/api/v1")
