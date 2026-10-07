@@ -1,67 +1,78 @@
-version: "3.9"
+version: "3.8"
 
 services:
-  app:
+  ledger-api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ledger_core_app
+    container_name: ledger-core-api
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-8000}:8000"
+      - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-ledger_admin}:${POSTGRES_PASSWORD:-ledger_secret}@postgres:5432/${POSTGRES_DB:-ledger_db}
-      - REDIS_URL=redis://redis:6379/0
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=ledger_core
+      - POSTGRES_USER=ledger_user
+      - POSTGRES_PASSWORD=ledger_secret
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
       redis:
         condition: service_healthy
     networks:
-      - ledger_network
-
-  postgres:
-    image: postgres:16-alpine
-    container_name: ledger_core_postgres
-    restart: unless-stopped
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-ledger_admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ledger_secret}
-      POSTGRES_DB: ${POSTGRES_DB:-ledger_db}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ledger-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ledger_admin} -d ${POSTGRES_DB:-ledger_db}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  db:
+    image: postgres:16-alpine
+    container_name: ledger-core-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=ledger_core
+      - POSTGRES_USER=ledger_user
+      - POSTGRES_PASSWORD=ledger_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     networks:
-      - ledger_network
+      - ledger-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ledger_user -d ledger_core"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: ledger_core_redis
+    container_name: ledger-core-redis
     restart: unless-stopped
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "6379:6379"
     volumes:
-      - redisdata:/data
+      - redis_data:/data
+    networks:
+      - ledger-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
-      timeout: 5s
+      timeout: 3s
       retries: 5
-    networks:
-      - ledger_network
 
 volumes:
-  pgdata:
-  redisdata:
+  postgres_data:
+  redis_data:
 
 networks:
-  ledger_network:
+  ledger-network:
     driver: bridge
