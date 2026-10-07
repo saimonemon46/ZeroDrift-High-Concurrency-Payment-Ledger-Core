@@ -12,7 +12,7 @@ class IIdempotencyStore(ABC):
     """Abstract port for idempotency key acquisition and result caching."""
 
     @abstractmethod
-    def try_acquire(self, key: str, ttl_seconds: int = 120) -> bool:
+    def try_acquire(self, key: str, ttl_seconds: float | int = 120) -> bool:
         """Attempts to atomically acquire an idempotency lock for the key.
 
         Args:
@@ -41,7 +41,7 @@ class IIdempotencyStore(ABC):
         self,
         key: str,
         result: dict[str, Any],
-        ttl_seconds: int = 86400,
+        ttl_seconds: float | int = 86400,
     ) -> None:
         """Stores final execution result for the idempotency key.
 
